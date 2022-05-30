@@ -329,7 +329,7 @@ ghPages.match('{*.jsx,*.tsx,*.ts,*.js}', {
     }
 });
 ghPages.match('*', {
-    domain: '/amis-editor-demo',
+    domain: '/page-editor',
     deploy: [
         fis.plugin('skip-packed'),
         fis.plugin('local-deliver', {
@@ -346,3 +346,12 @@ ghPages.match('monaco-editor/**', {
 ghPages.match('amis/schema.json', {
     release: '/schema.json'
 });
+
+
+fis.hook('relative');
+
+// 让所有文件，都使用相对路径。
+fis.match('**', {
+    relative: true
+})
+

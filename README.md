@@ -1,4 +1,4 @@
-# amis-editor-demo
+# amis-ui-editor
 
 amis 可视化编辑器, 在线体验：https://aisuda.github.io/amis-editor-demo
 

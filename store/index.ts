@@ -24,6 +24,8 @@ export const MainStore = types
     addPageIsOpen: false,
     preview: false,
     isMobile: false,
+    loadUrl:types.frozen(),
+    saveUrl:types.frozen(),
     schema: types.frozen()
   })
   .views(self => ({

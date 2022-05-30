@@ -6,6 +6,8 @@ import {MainStore} from './store/index';
 import RootRoute from './route/index';
 import copy from 'copy-to-clipboard';
 
+import {loadSchema} from './api/SchemaApi';
+
 export default function (): JSX.Element {
   const store = ((window as any).store = MainStore.create(
     {},
@@ -53,6 +55,8 @@ export default function (): JSX.Element {
       }
     }
   ));
+
+  loadSchema(schema => store.updateSchema(schema))
 
   return (
     <Provider store={store}>
