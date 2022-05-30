@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "fis3 server start --www ./public --port 18080 --no-daemon",
     "server": "fis3 server start --www ./ --port 18081 --no-daemon",
-    "release": "fis3 release -cd ./public",
+    "build": "fis3 release -cd ./public",
     "dev": "fis3 release -cwd ./public",
     "gh-pages": "rm -rf gh-pages && fis3 release gh-pages -c",
     "prettier": "prettier --write '{component,scss,editor,renderer,route,store}/**/**/*.{js,jsx,ts,tsx,scss,json}'"
