@@ -58,7 +58,7 @@ export default function (): JSX.Element {
 
     loadSchema(schema => {
         store.updateSchema(schema);
-        toast.success("页面加载成功", '系统消息')
+        toast.info("页面已加载", '系统消息')
     }, store)
 
     return (

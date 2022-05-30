@@ -2,7 +2,7 @@ import React from 'react';
 import {Editor} from 'amis-editor';
 import {inject, observer} from 'mobx-react';
 import {RouteComponentProps} from 'react-router-dom';
-import {alert, confirm, toast} from 'amis';
+import {confirm, toast} from 'amis';
 import {Icon} from '../icons/index';
 import {IMainStore} from '../store';
 import '../editor/DisabledEditorPlugin'; // 用于隐藏一些不需要的Editor预置组件
@@ -28,14 +28,24 @@ export default inject('store')(
                        }: { store: IMainStore } & RouteComponentProps<{ id: string }>) {
 
         function load() {
-            loadSchema(schema => {
-                store.updateSchema(schema);
-                toast.success("页面加载成功", '系统消息')
-            }, store)
+            confirm("重新加载将导致变更丢失，确定要重新加载？", "加载提示", "确定")
+                .then((ok) => {
+                    if (ok) {
+                        loadSchema(schema => {
+                            store.updateSchema(schema);
+                            toast.info("页面已加载", '系统消息')
+                        }, store)
+                    }
+                })
         }
 
         function save() {
-            saveSchema(store.schema, store)
+            confirm("确定要保存？", "保存提示", "确定")
+                .then((ok) => {
+                    if (ok) {
+                        saveSchema(store.schema, store)
+                    }
+                })
         }
 
         return (
