@@ -17,7 +17,7 @@ const prefix = 'fex/';
 
 async function main() {
   const folder = 'gh-pages';
-  const productName = 'amis-editor-gh-pages';
+  const productName = 'amis-ui-editor-gh-pages';
 
   if (!fs.existsSync(folder)) {
     throw new Error('文件夹不存在');
