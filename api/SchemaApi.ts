@@ -5,6 +5,9 @@ import {IMainStore} from '../store';
 
 import jwtDecode from "jwt-decode";
 
+// @ts-ignore
+__uri('example/Example.json');
+
 //文档地址：https://kjur.github.io/jsrsasign/api/symbols/KJUR.jws.JWS.html#.verifyJWT
 // import 'jsrsasign/lib/jsrsasign-jwths-min.js';
 
@@ -32,7 +35,7 @@ if (secret) {
 if (isLocalhost && !token) {
 
     let testToken = {
-        loadUrl: "/public/Role.json",
+        loadUrl: "/public/example/Example.json",
         saveUrl: "/public/Save",
         baseUrl: location.protocol + "//" + location.hostname + ":" + (location.port || '80')
     }

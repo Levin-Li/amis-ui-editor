@@ -11,13 +11,11 @@ import '../editor/MyRenderer';
 
 import {loadSchema, saveSchema} from '../api/SchemaApi';
 
-const iframeUrl = 'editor.html';
-const schemaUrl = 'schema.json';
-
-// 如果在 gh-pages 里面
-
 // @ts-ignore
 __uri('amis/schema.json');
+
+const iframeUrl = 'editor.html';
+const schemaUrl = 'schema.json';
 
 export default inject('store')(
     observer(function ({

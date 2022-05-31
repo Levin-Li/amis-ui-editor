@@ -20,6 +20,52 @@ Resource.extend({
 });
 
 
+const packConfig = {
+    'pkg/npm_deps.js': [
+        'node_modules/**.js',
+        '!monaco-editor/**',
+        '!flv.js/**',
+        '!hls.js/**',
+        '!amis/lib/editor/**',
+        '!froala-editor/**',
+        '!amis/lib/components/RichText.js',
+        '!jquery/**',
+        '!zrender/**',
+        '!echarts/**',
+        '!amis-editor/**'
+    ],
+    'pkg/rich-text.js': [
+        'amis/lib/components/RichText.js',
+        'froala-editor/**',
+        'jquery/**'
+    ],
+    'pkg/echarts.js': ['zrender/**', 'echarts/**'],
+    'pkg/api-mock.js': ['mock/*.ts'],
+    'pkg/app.js': ['/App.tsx', '/App.tsx:deps'],
+    'pkg/rest.js': [
+        '**.{js,jsx,ts,tsx}',
+        '!static/mod.js',
+        '!monaco-editor/**',
+        '!echarts/**',
+        '!flv.js/**',
+        '!hls.js/**',
+        '!froala-editor/**',
+        '!jquery/**',
+        '!amis/lib/components/RichText.js',
+        '!zrender/**',
+        '!echarts/**',
+        '!amis-editor/**'
+    ],
+    // css 打包
+    'pkg/style.css': [
+        'node_modules/*/**.css',
+        '*.scss',
+        '!/scss/*.scss',
+        '/scss/*.scss',
+        '!monaco-editor/**'
+    ]
+};
+
 fis.get('project.ignore').push('public/**', 'gh-pages/**');
 
 // 配置只编译哪些文件。
@@ -73,6 +119,10 @@ fis.match('amis/schema.json', {
     release: '/schema.json'
 });
 
+fis.match('example/**', {
+    isMod: true
+});
+
 fis.match('markdown-it/**.js', {
     preprocessor: fis.plugin('js-require-file')
 });
@@ -82,7 +132,7 @@ fis.match('*.{jsx,tsx,ts}', {
         fis.plugin('typescript', {
             importHelpers: true,
             experimentalDecorators: true,
-            sourceMap: true,
+            // sourceMap: true,
             esModuleInterop: true
         }),
 
@@ -139,8 +189,10 @@ fis.match('*.html:jsx', {
     isMod: false
 });
 
-//打包
+// packConfig
+//打包 http://fis.baidu.com/fis3/docs/pack.html
 fis.match('::package', {
+    //  packager: fis.plugin('deps-pack', packConfig),
     postpackager: fis.plugin('loader', {
         useInlineMap: false,
         resourceType: 'mod'
@@ -203,11 +255,11 @@ fis.match('**', {
     relative: true
 })
 
-fis.match('node_modules/monaco-editor/**', {
-    relative: false
-})
+// fis.match('node_modules/monaco-editor/**', {
+//     relative: false
+// })
 
-fis.media('prod')
+fis
     .match('**.js', {
         //optimizer: fis.plugin('uglify-js')
         sourceMap: false,
@@ -218,8 +270,8 @@ fis.media('prod')
     .match('**.css', {
         //optimizer: fis.plugin('clean-css')
     })
-    .match('*.{js}.map', {
-        release: false
+    .match('**.js.map', {
+        //release: false
     })
     .match('*.png', {
         // fis-optimizer-png-compressor 插件进行压缩，已内置
@@ -230,75 +282,29 @@ fis.media('prod')
     })
     .match('/node_modules/**.js', {
         packTo: '/pkg/npm_deps.js',
-       // useHash: true,
+        // useHash: true,
     })
     .match('{monaco-editor,amis-editor}/**.js', {
-    // .match('/node_modules/monaco-editor/**.js', {
-        packTo: null
+        // .match('/node_modules/monaco-editor/**.js', {
+        packTo: null,
+        optimizer: null
     })
     .match('**.{js,css}', {
         useHash: true
     })
-
-fis.media('dev')
-    .match('/node_modules/**.js', {
-        packTo: '/pkg/npm_deps.js',
+    .match('::image', {
+        useHash: true
     })
-    .match('{monaco-editor,amis-editor}/**.js', {
-        packTo: null
-    });
-
+    .match('{monaco-editor,amis-editor}/**', {
+        useHash: false
+    })
+    .match('{**.min.js,monaco-editor/**.js}', {
+        optimizer: null
+    })
 //////////////////////////////////////////////////////////////
 
 const ghPages = fis.media('gh-pages');
 
-const packConfig = {
-    'pkg/npm.js': [
-        // 'mod.js',
-        // '/jsrsasign-all-min.js',
-        'node_modules/**.js',
-        '!monaco-editor/**',
-        '!flv.js/**',
-        '!hls.js/**',
-        '!amis/lib/editor/**',
-        '!froala-editor/**',
-        '!amis/lib/components/RichText.js',
-        '!jquery/**',
-        '!zrender/**',
-        '!echarts/**',
-        '!amis-editor/**'
-    ],
-    'pkg/rich-text.js': [
-        'amis/lib/components/RichText.js',
-        'froala-editor/**',
-        'jquery/**'
-    ],
-    'pkg/echarts.js': ['zrender/**', 'echarts/**'],
-    'pkg/api-mock.js': ['mock/*.ts'],
-    'pkg/app.js': ['/App.tsx', '/App.tsx:deps'],
-    'pkg/rest.js': [
-        '**.{js,jsx,ts,tsx}',
-        '!static/mod.js',
-        '!monaco-editor/**',
-        '!echarts/**',
-        '!flv.js/**',
-        '!hls.js/**',
-        '!froala-editor/**',
-        '!jquery/**',
-        '!amis/lib/components/RichText.js',
-        '!zrender/**',
-        '!echarts/**',
-        '!amis-editor/**'
-    ],
-    // css 打包
-    'pkg/style.css': [
-        'node_modules/*/**.css',
-        '*.scss',
-        '!/scss/*.scss',
-        '/scss/*.scss',
-        '!monaco-editor/**'
-    ]
-};
 
 ghPages.match('/node_modules/(**)', {
     release: '/n/$1'
