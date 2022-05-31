@@ -84,7 +84,7 @@ export default inject('store')(
                                 store.setPreview(!store.preview);
                             }}
                         >
-                            {store.preview ? '编辑' : '预览'}
+                            {store.preview ? '返回编辑' : '预览'}
                         </div>
                         {!store.preview && (
                             <div>

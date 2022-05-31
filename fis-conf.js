@@ -284,6 +284,10 @@ fis
         packTo: '/pkg/npm_deps.js',
         // useHash: true,
     })
+    .match('/node_modules/**.css', {
+        packTo: '/pkg/npm_deps.css',
+        // useHash: true,
+    })
     .match('{monaco-editor,amis-editor}/**.js', {
         // .match('/node_modules/monaco-editor/**.js', {
         packTo: null,
