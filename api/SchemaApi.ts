@@ -34,7 +34,7 @@ if (isLocalhost && !token) {
     let testToken = {
         loadUrl: "/public/Role.json",
         saveUrl: "/public/Save",
-        baseUrl: "127.0.0.1:" + (location.port || '80')
+        baseUrl: location.protocol + "//" + location.hostname + ":" + (location.port || '80')
     }
 
     let testSecret = "-secret:" + new Date().getTime();
@@ -101,6 +101,11 @@ if (!KJUR.jws.JWS.verifyJWT(token, secret, {alg: [alg, 'RS256', 'ES256', 'PS256'
 // const tokenData: any = {loadUrl: "/public/Role.json"};// jwt_decode(token, {header: false})
 const tokenData: any = jwtDecode(token, {header: false})
 
+if (isLocalhost) {
+    console.log(" tokenData:" + [...tokenData])
+}
+
+//http://127.0.0.1:18081/public/127.0.0.1:18081//public/Role.json
 function completeUrl(url: string) {
     return (url.trim().startsWith("http://") || url.trim().startsWith("https://"))
         ? url : ((tokenData?.baseUrl || (location.protocol + "//" + location.host)) + "/" + url);
