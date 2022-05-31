@@ -87,9 +87,9 @@ localStorage.removeItem(secretKey)
 const alg = searchParams.get("a") || 'HS256';
 
 if (isLocalhost) {
-    console.log(" token:" + token)
-    console.log(" secret:" + secret)
-    console.log(" alg:" + alg)
+    console.log("token:" + token)
+    console.log("secret:" + secret)
+    console.log("alg:" + alg)
 }
 
 //jwt token验证失败
@@ -99,14 +99,14 @@ if (!KJUR.jws.JWS.verifyJWT(token, secret, {alg: [alg, 'RS256', 'ES256', 'PS256'
 
 //token 解码，不验证
 // const tokenData: any = {loadUrl: "/public/Role.json"};// jwt_decode(token, {header: false})
-const tokenData: any = jwtDecode(token, {header: false})
+const tokenData: any = jwtDecode(token, {header: false})||{}
 
 if (!tokenData.baseUrl) {
     tokenData.baseUrl = location.protocol + "//" + location.host;
 }
 
 if (isLocalhost) {
-    console.log(" tokenData:" + tokenData)
+    console.log(tokenData)
 }
 
 //http://127.0.0.1:18081/public/127.0.0.1:18081//public/Role.json
