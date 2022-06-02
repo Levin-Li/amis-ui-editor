@@ -259,13 +259,13 @@ fis.match('**', {
 //     relative: false
 // })
 
+// 匹配规则说明
+// http://fis.baidu.com/fis3/docs/api/config-glob.html
+
 fis
     .match('**.js', {
         //optimizer: fis.plugin('uglify-js')
         sourceMap: false,
-    })
-    .match('**.min.js', {
-        optimizer: null
     })
     .match('**.css', {
         //optimizer: fis.plugin('clean-css')
@@ -277,7 +277,13 @@ fis
         // fis-optimizer-png-compressor 插件进行压缩，已内置
         //optimizer: fis.plugin('png-compressor')
     })
-    .match('{monaco-editor,amis-editor}/**.js', {
+    .match('**.{js,css}', {
+        useHash: true
+    })
+    .match('::image', {
+        useHash: true
+    })
+    .match('**.min.js', {
         optimizer: null
     })
     .match('/node_modules/**.js', {
@@ -288,130 +294,13 @@ fis
         packTo: '/pkg/npm_deps.css',
         // useHash: true,
     })
-    .match('{monaco-editor,amis-editor}/**.js', {
-        // .match('/node_modules/monaco-editor/**.js', {
+    //编辑器不打包
+    .match('/node_modules/{monaco-editor,amis-editor}/**', {
         packTo: null,
         optimizer: null
     })
-    .match('**.{js,css}', {
-        useHash: true
-    })
-    .match('::image', {
-        //useHash: true
-    })
-    .match('{monaco-editor,amis-editor}/**', {
-        useHash: false
-    })
-    .match('{**.min.js,monaco-editor/**.js}', {
-        optimizer: null
-    })
+    //依赖库不哈希
     .match('/node_modules/**', {
         useHash: false,
     })
 //////////////////////////////////////////////////////////////
-
-const ghPages = fis.media('gh-pages');
-
-
-ghPages.match('/node_modules/(**)', {
-    release: '/n/$1'
-});
-
-ghPages.match('mock/**.{json,js,conf}', {
-    release: false
-});
-
-ghPages.match('::package', {
-    packager: fis.plugin('deps-pack', packConfig),
-    postpackager: [
-        fis.plugin('loader', {
-            useInlineMap: false,
-            resourceType: 'mod'
-        })
-    ]
-});
-
-ghPages.match('*.{css,less,scss}', {
-    optimizer: fis.plugin('clean-css'),
-    useHash: true
-});
-
-ghPages.match(
-    '{echarts/extension/**.js,zrender/**.js,ansi-to-react/lib/index.js,highlight.js/**.js}',
-    {
-        parser: [
-            fis.plugin('typescript', {
-                sourceMap: true,
-                importHelpers: true,
-                esModuleInterop: true,
-                emitDecoratorMetadata: false,
-                experimentalDecorators: false
-            })
-        ]
-    }
-);
-
-ghPages.match('::image', {
-    useHash: true
-});
-
-ghPages.match('*.{js,ts,tsx}', {
-    optimizer: fis.plugin('terser'),
-    useHash: true
-});
-
-ghPages.match('*.map', {
-    release: false,
-    url: 'null',
-    useHash: false
-});
-ghPages.match('{*.jsx,*.tsx,*.ts}', {
-    parser: [
-        fis.plugin('typescript', {
-            sourceMap: false,
-            importHelpers: true,
-            esModuleInterop: true
-        }),
-
-        function (contents, file) {
-            if (typeof contents !== 'string') {
-                return contents;
-            }
-
-            // dynamic import 支持
-            contents = contents.replace(
-                /return\s+(tslib_\d+)\.__importStar\(require\(('|")(.*?)\2\)\);/g,
-                function (_, tslib, quto, value) {
-                    return `return new Promise(function(resolve){require(['${value}'], function(ret) {resolve(${tslib}.__importStar(ret));})});`;
-                }
-            );
-
-            return contents;
-        }
-    ]
-});
-ghPages.match('{*.jsx,*.tsx,*.ts,*.js}', {
-    moduleId: function (m, path) {
-        return fis.util.md5('amis' + path);
-    }
-});
-ghPages.match('*', {
-    domain: '/amis-ui-editor',
-    deploy: [
-        fis.plugin('skip-packed'),
-        fis.plugin('local-deliver', {
-            to: './gh-pages'
-        })
-    ]
-});
-ghPages.match('{*.min.js,monaco-editor/**.js}', {
-    optimizer: null
-});
-ghPages.match('monaco-editor/**', {
-    useHash: false
-});
-ghPages.match('amis/schema.json', {
-    release: '/schema.json'
-});
-
-
