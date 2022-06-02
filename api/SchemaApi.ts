@@ -13,7 +13,11 @@ __uri('example/Example.json');
 
 // require('jsrsasign/lib/jsrsasign-all-min.js');
 
-console.log("url:" + location.href)
+let index = location.pathname.lastIndexOf("/");
+
+const currentPath = index === -1 ? "" : location.pathname.substring(0, index);
+
+console.log("url path:" + location.pathname + ",currentPath:" + currentPath)
 
 const searchParams = new URL(location.href).searchParams;
 
@@ -37,8 +41,8 @@ if (secret) {
 if (isLocalhost && !token) {
 
     let testToken = {
-        loadUrl: location.pathname + "/example/Example.json",
-        saveUrl: location.pathname + "/example/Save",
+        loadUrl: currentPath + "/example/Example.json",
+        saveUrl: currentPath + "/example/Save",
         baseUrl: location.protocol + "//" + location.hostname + ":" + (location.port || '80')
     }
 
