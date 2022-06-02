@@ -13,6 +13,8 @@ __uri('example/Example.json');
 
 // require('jsrsasign/lib/jsrsasign-all-min.js');
 
+console.log("url:" + location.href)
+
 const searchParams = new URL(location.href).searchParams;
 
 // console.log(process.env)
@@ -35,8 +37,8 @@ if (secret) {
 if (isLocalhost && !token) {
 
     let testToken = {
-        loadUrl: "/public/example/Example.json",
-        saveUrl: "/public/Save",
+        loadUrl: location.pathname + "/example/Example.json",
+        saveUrl: location.pathname + "/example/Save",
         baseUrl: location.protocol + "//" + location.hostname + ":" + (location.port || '80')
     }
 
@@ -102,7 +104,7 @@ if (!KJUR.jws.JWS.verifyJWT(token, secret, {alg: [alg, 'RS256', 'ES256', 'PS256'
 
 //token 解码，不验证
 // const tokenData: any = {loadUrl: "/public/Role.json"};// jwt_decode(token, {header: false})
-const tokenData: any = jwtDecode(token, {header: false})||{}
+const tokenData: any = jwtDecode(token, {header: false}) || {}
 
 if (!tokenData.baseUrl) {
     tokenData.baseUrl = location.protocol + "//" + location.host;
