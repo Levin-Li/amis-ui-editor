@@ -297,13 +297,16 @@ fis
         useHash: true
     })
     .match('::image', {
-        useHash: true
+        //useHash: true
     })
     .match('{monaco-editor,amis-editor}/**', {
         useHash: false
     })
     .match('{**.min.js,monaco-editor/**.js}', {
         optimizer: null
+    })
+    .match('/node_modules/**', {
+        useHash: false,
     })
 //////////////////////////////////////////////////////////////
 
