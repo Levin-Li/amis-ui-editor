@@ -13,12 +13,6 @@ __uri('example/Example.json');
 
 // require('jsrsasign/lib/jsrsasign-all-min.js');
 
-let index = location.pathname.lastIndexOf("/");
-
-const currentPath = index === -1 ? "" : location.pathname.substring(0, index);
-
-console.log("url path:" + location.pathname + ",currentPath:" + currentPath)
-
 const searchParams = new URL(location.href).searchParams;
 
 // console.log(process.env)
@@ -34,9 +28,18 @@ let secret = searchParams.get("p");
 if (token) {
     localStorage.removeItem(tokenKey)
 }
+
 if (secret) {
     localStorage.removeItem(secretKey)
 }
+
+//////////////////////////////////////////////////////////////////////////////////
+
+let index = location.pathname.lastIndexOf("/");
+
+const currentPath = index === -1 ? "" : location.pathname.substring(0, index);
+
+console.log("url path:" + location.pathname + ",currentPath:" + currentPath)
 
 if (isLocalhost && !token) {
 
@@ -88,7 +91,6 @@ localStorage.removeItem(tokenKey)
 
 //参数优先
 secret = "llw@oak" + (secret || localStorage.getItem(secretKey))
-
 //立刻删除
 localStorage.removeItem(secretKey)
 
