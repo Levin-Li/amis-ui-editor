@@ -2,8 +2,8 @@
 {
   "code": 0,
   "data":{
-    "name": "角色管理",
-    "title": "XX 角色管理",
+    "name": "示例页面",
+    "title": "示例页面编辑",
     "content": {
       "type": "page",
       "title": "列表2",
