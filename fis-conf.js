@@ -22,6 +22,7 @@ Resource.extend({
 
 const packConfig = {
     'pkg/npm_deps.js': [
+        '/mod.js',
         'node_modules/**.js',
         '!monaco-editor/**',
         '!flv.js/**',
@@ -35,6 +36,7 @@ const packConfig = {
         '!amis-editor/**'
     ],
     'pkg/rich-text.js': [
+        '/mod.js',
         'amis/lib/components/RichText.js',
         'froala-editor/**',
         'jquery/**'

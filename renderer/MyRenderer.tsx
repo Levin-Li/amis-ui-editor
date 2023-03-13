@@ -1,5 +1,5 @@
 import {Renderer} from 'amis';
-import {RendererProps} from 'amis/lib/factory';
+import {RendererProps} from 'amis';
 import React from 'react';
 
 export interface MyRendererProps extends RendererProps {
@@ -18,6 +18,6 @@ export default class MyRenderer extends React.Component<MyRendererProps> {
   render() {
     const {target} = this.props;
 
-    return <p>Hello {target}!</p>;
+    return <p>Hello {target}! @amis-editor</p>;
   }
 }

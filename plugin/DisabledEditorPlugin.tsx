@@ -8,19 +8,19 @@ import {RendererEventContext, SubRendererInfo, BasicSubRenderInfo, PluginInterfa
 
 // 需要在组件面板中隐藏的组件
 const disabledRenderers = [
- // 'audio', // 音频
- // 'carousel', // 轮播图
- 'custom', // 自定义代码
- // 'log', // 日志
- // 'sparkline', // 走势图
+  // 'audio', // 音频
+  // 'carousel', // 轮播图
+  'custom', // 自定义代码
+  // 'log', // 日志
+  // 'sparkline', // 走势图
 ];
 
 export class ManagerEditorPlugin extends BasePlugin {
   order = 9999;
 
   buildSubRenderers(
-    context: RendererEventContext,
-    renderers: Array<SubRendererInfo>
+      context: RendererEventContext,
+      renderers: Array<SubRendererInfo>
   ): BasicSubRenderInfo | Array<BasicSubRenderInfo> | void {
     // 更新NPM自定义组件排序和分类
     for (let index = 0, size = renderers.length; index < size; index++) {

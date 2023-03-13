@@ -7,5 +7,5 @@ import App from './App';
 import "./scss/style.scss";
 
 export function bootstrap(mountTo: HTMLElement) {
-  ReactDom.render(<App/>, mountTo);
+  ReactDom.render(<App />, mountTo);
 }

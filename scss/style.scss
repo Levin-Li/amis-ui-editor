@@ -48,9 +48,11 @@ html {
     box-sizing: border-box;
     z-index: 1000;
 
-    svg {
+    .editor-header-icon svg,
+    .shortcut-icon-btn svg {
       display: inline-block;
       width: 16px;
+      height: 16px;
     }
 
     .Editor-title {
