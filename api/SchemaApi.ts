@@ -5,6 +5,14 @@ import {IMainStore} from '../store';
 
 import jwtDecode from "jwt-decode";
 
+/**
+ *
+ * 加载和保存的API
+ *
+ * 加载地址使用GET方法
+ * 保存使用PUT 方法
+ *
+ */
 // @ts-ignore
 __uri('example/Example.json');
 
@@ -12,6 +20,13 @@ __uri('example/Example.json');
 // import 'jsrsasign/lib/jsrsasign-jwths-min.js';
 
 // require('jsrsasign/lib/jsrsasign-all-min.js');
+
+const getItem = (key: string) => {
+    let item = sessionStorage.getItem(key);
+    //立刻删除
+    sessionStorage.removeItem(key)
+    return item
+}
 
 const searchParams = new URL(location.href).searchParams;
 
@@ -22,34 +37,37 @@ const isLocalhost = location.hostname === '127.0.0.1';
 const tokenKey = "token_" + location.href;
 const secretKey = tokenKey + "_secret";
 
-let token = searchParams.get("t");
-let secret = searchParams.get("p");
+//页面支持3个参数
+// 参数：a 加密算法
+// 参数：t token
+// 参数：p 密码
 
-if (token) {
-    localStorage.removeItem(tokenKey)
-}
+//jwt token 数据
+let token = searchParams.get("t") || getItem(tokenKey);
 
-if (secret) {
-    localStorage.removeItem(secretKey)
-}
+//jwt token 解密密码
+let secret = "llw@oak" + (searchParams.get("p") || getItem(secretKey));
 
+//参数优先
+const alg = searchParams.get("a") || 'HS256';
 //////////////////////////////////////////////////////////////////////////////////
 
-let index = location.pathname.lastIndexOf("/");
-
-const currentPath = index === -1 ? "" : location.pathname.substring(0, index);
-
-console.log("url path:" + location.pathname + ",currentPath:" + currentPath)
-
+//如果是本机，模拟测试
 if (isLocalhost && !token) {
 
-    let testToken = {
+    let index = location.pathname.lastIndexOf("/");
+
+    const currentPath = index === -1 ? "" : location.pathname.substring(0, index);
+
+    console.log("url path:" + location.pathname + ",currentPath:" + currentPath)
+
+    let testTokenData = {
         loadUrl: currentPath + "/example/Example.json",
         saveUrl: currentPath + "/example/Save",
         baseUrl: location.protocol + "//" + location.hostname + ":" + (location.port || '80')
     }
 
-    let testSecret = "-secret:" + new Date().getTime();
+    secret = "llw@oak" + "-secret:" + new Date().getTime();
 
     //方法描述：KJUR.jws.JWS.sign(alg, spHead, spPayload, key, pass)
 
@@ -67,11 +85,7 @@ if (isLocalhost && !token) {
 // // header and payload can be passed by both string and object
 //     sJWS = KJUR.jws.JWS.sign(null, '{alg:"HS256",cty:"JWT"}', '{age:21}', "aaa");
 
-    testToken = KJUR.jws.JWS.sign(null, {alg: "HS256", cty: "JWT"}, testToken, "llw@oak" + testSecret);
-
-    localStorage.setItem(tokenKey, testToken);
-
-    localStorage.setItem(secretKey, testSecret);
+    token = KJUR.jws.JWS.sign(null, {alg: "HS256", cty: "JWT"}, testTokenData, secret);
 }
 
 // jwt 解密密码
@@ -82,20 +96,6 @@ if (isLocalhost && !token) {
 // saveUrl:
 // headers:
 // }
-
-//通过token或是参数
-
-token = token || localStorage.getItem(tokenKey)
-//立刻删除
-localStorage.removeItem(tokenKey)
-
-//参数优先
-secret = "llw@oak" + (secret || localStorage.getItem(secretKey))
-//立刻删除
-localStorage.removeItem(secretKey)
-
-//参数优先
-const alg = searchParams.get("a") || 'HS256';
 
 if (isLocalhost) {
     console.log("token:" + token)
@@ -123,7 +123,7 @@ if (isLocalhost) {
 //http://127.0.0.1:18081/public/127.0.0.1:18081//public/Role.json
 function completeUrl(url: string) {
     return (url.trim().startsWith("http://") || url.trim().startsWith("https://"))
-        ? url : (tokenData.baseUrl + "/" + url);
+        ? url : (tokenData.baseUrl + ("/" + url).replace("//", "/"));
 }
 
 function getHeaders() {

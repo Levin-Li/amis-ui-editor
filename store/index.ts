@@ -24,7 +24,10 @@ export const MainStore = types
     addPageIsOpen: false,
     preview: false,
     isMobile: false,
-    schema: types.frozen()
+    schema: types.frozen(),
+    title: "可视化页面编辑器",
+    loadUrl: types.frozen(),
+    saveUrl: types.frozen(),
   })
   .views(self => ({
     get fetcher() {
@@ -71,13 +74,6 @@ export const MainStore = types
       );
     }
 
-    function removePageAt(index: number) {
-      self.pages.splice(index, 1);
-    }
-
-    function updatePageSchemaAt(index: number) {
-      self.pages[index].updateSchema(self.schema);
-    }
 
     function updateSchema(value: any) {
       self.schema = value;
@@ -91,17 +87,22 @@ export const MainStore = types
       self.isMobile = value;
     }
 
+    function setTitle(value: string) {
+      self.title = value;
+    }
+
     return {
       toggleAsideFolded,
       toggleAsideFixed,
       toggleOffScreen,
-      setAddPageIsOpen,
-      addPage,
-      removePageAt,
-      updatePageSchemaAt,
+      // setAddPageIsOpen,
+      // addPage,
+      // removePageAt,
+      // updatePageSchemaAt,
       updateSchema,
       setPreview,
       setIsMobile,
+      setTitle,
       afterCreate() {
         // persist store
         if (typeof window !== 'undefined' && window.localStorage) {

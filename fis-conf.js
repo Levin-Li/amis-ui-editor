@@ -60,7 +60,7 @@ const packConfig = {
     ],
     // css 打包
     'pkg/style.css': [
-        'node_modules/*/**.css',
+        'node_modules/**.css',
         '*.scss',
         '!/scss/*.scss',
         '/scss/*.scss',

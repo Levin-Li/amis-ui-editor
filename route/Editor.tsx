@@ -1,14 +1,12 @@
 import React from 'react';
-import {Editor, ShortcutKey} from 'amis-editor';
+import {Editor, ShortcutKey, BasePlugin} from 'amis-editor';
 import {inject, observer} from 'mobx-react';
 import {RouteComponentProps} from 'react-router-dom';
-import {toast,Select} from 'amis';
+import {toast, Select, confirm} from 'amis';
 import {currentLocale} from 'i18n-runtime';
 import {Icon} from '../icons/index';
 import {IMainStore} from '../store';
 import '../plugin/DisabledEditorPlugin'; // 用于隐藏一些不需要的Editor预置组件
-import '../renderer/MyRenderer';
-
 
 import {loadSchema, saveSchema} from '../api/SchemaApi';
 
