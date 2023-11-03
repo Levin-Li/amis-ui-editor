@@ -56,6 +56,7 @@
     "@types/react-router": "5.0.1",
     "@types/react-router-dom": "^5.3.3",
     "@types/jsrsasign": "^10.5.11",
+    "@types/crypto-js": "^4.1.1",
     "acorn": "^8.8.2",
     "amis-widget-cli": "^3.2.0",
     "monaco-editor-webpack-plugin": "6.0.0",
