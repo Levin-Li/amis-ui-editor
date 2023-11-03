@@ -65,10 +65,11 @@ module.exports = {
     // 用于构建生产环境代码的相关配置信息
     NODE_ENV: 'production',
     assetsRoot: resolve('./editor-5.6.1-v2'), // 打包后的文件绝对路径（物理路径）
-    assetsPublicPath: 'https://aisuda.github.io/amis-editor-demo/demo-5.6.1-v2/', // 设置静态资源的引用路径（根域名+路径）
+    // assetsPublicPath: 'https://aisuda.github.io/amis-editor-demo/demo-5.6.1-v2/', // 设置静态资源的引用路径（根域名+路径）
+    assetsPublicPath: './', // 设置静态资源的引用路径（根域名+路径）
     assetsSubDirectory: '', // 资源引用二级路径
     productionSourceMap: false,
-    productionGzip: false,
+    productionGzip: true,
     productionGzipExtensions: ['js', 'css', 'json'],
     plugins: [new MonacoWebpackPlugin()],
     bundleAnalyzerReport: false,
