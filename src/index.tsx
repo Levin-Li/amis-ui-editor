@@ -13,6 +13,7 @@ import 'amis-editor-core/lib/style.css';
 import './scss/style.scss';
 import {setDefaultTheme} from 'amis';
 
+
 setDefaultTheme('cxd');
 
 // react < 18

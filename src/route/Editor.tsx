@@ -1,5 +1,5 @@
 import React from 'react';
-import {Editor, ShortcutKey, BasePlugin} from 'amis-editor';
+import {Editor, ShortcutKey, BasePlugin, __uri} from 'amis-editor';
 import {inject, observer} from 'mobx-react';
 import {RouteComponentProps} from 'react-router-dom';
 import {toast, Select, confirm} from 'amis';
@@ -10,8 +10,7 @@ import '../editor/DisabledEditorPlugin'; // 用于隐藏一些不需要的Editor
 
 import {loadSchema, saveSchema} from '../api/SchemaApi';
 
-// @ts-ignore
-__uri('amis/schema.json');
+require('amis/schema.json');
 
 const schemaUrl = 'schema.json';
 

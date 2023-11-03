@@ -1,6 +1,6 @@
 import axios from "axios";
 import {alert} from 'amis';
-
+import {__uri} from 'amis-editor';
 import {IMainStore} from '../store';
 
 import jwtDecode from "jwt-decode";
@@ -8,8 +8,9 @@ import jwtDecode from "jwt-decode";
 //文档地址：https://kjur.github.io/jsrsasign/api/symbols/KJUR.jws.JWS.html#.verifyJWT
 import {KJUR, KEYUTIL, RSAKey} from 'jsrsasign';
 
-// @ts-ignore
-// __uri('example/Example.json');
+const exampleJson = require('../example/Example.json');
+
+const exj = __uri('../example/Example.json');
 
 /**
  *
@@ -31,7 +32,7 @@ const searchParams = new URL(location.href).searchParams;
 
 // console.log(process.env)
 
-const isLocalhost = location.hostname === '127.0.0.1';
+const isLocalhost = location.hostname === '127.0.0.1' || location.hostname === 'localhost';
 
 const tokenKey = "token_" + location.href;
 const secretKey = tokenKey + "_secret";
@@ -58,7 +59,7 @@ if (isLocalhost && !token) {
 
     const currentPath = index === -1 ? "" : location.pathname.substring(0, index);
 
-    console.log("url path:" + location.pathname + ",currentPath:" + currentPath)
+    console.debug("url path:" + location.pathname + ",currentPath:" + currentPath)
 
     let testTokenData = {
         loadUrl: currentPath + "/example/Example.json",
@@ -84,7 +85,7 @@ if (isLocalhost && !token) {
 // // header and payload can be passed by both string and object
 //     sJWS = KJUR.jws.JWS.sign(null, '{alg:"HS256",cty:"JWT"}', '{age:21}', "aaa");
 
-    token = KJUR.jws.JWS.sign(null, '{alg: "HS256", cty: "JWT"}', testTokenData, secret);
+    token = KJUR.jws.JWS.sign('HS256', '{alg: "HS256", cty: "JWT"}', testTokenData, secret);
 }
 
 // jwt 解密密码
@@ -97,9 +98,9 @@ if (isLocalhost && !token) {
 // }
 
 if (isLocalhost) {
-    console.log("token:" + token)
-    console.log("secret:" + secret)
-    console.log("alg:" + alg)
+    console.debug("token:", token)
+    console.debug("secret:", secret)
+    console.debug("alg:", alg)
 }
 
 //jwt token验证失败
@@ -137,6 +138,7 @@ function getSaveUrl() {
     return completeUrl(tokenData.saveUrl || tokenData.loadUrl);
 }
 
+
 /**
  * 加载页面
  * @param onSchema
@@ -145,9 +147,46 @@ function getSaveUrl() {
  */
 export function loadSchema(onSchema: (schema: any) => void
     , store?: IMainStore
-    , onError: (info: string) => void = (info => alert(info, "错误"))) {
+    , onErrorFun: (info: string) => void = (info => alert(info, "错误"))) {
 
-    axios.get(getLoadUrl(), {headers: getHeaders()}).then(response => {
+    const updateSchema = (data: any) => {
+
+        let schame = data.content;
+
+        if ((typeof schame) === "string") {
+            schame = JSON.parse(schame)
+        }
+
+        const title = data.title || data.name || data.remark;
+
+        if (store && title) {
+            store.setTitle(title)
+        }
+        if (document && title) {
+            document.title = title
+        }
+
+        onSchema(schame)
+    }
+
+    const loadUrl = getLoadUrl();
+
+    const onError = (info: string) => {
+
+        if (loadUrl.endsWith('/Example.json')) {
+
+            onErrorFun(info + " , 将加载默认示例页面！")
+
+            console.info('加载示例', exampleJson)
+
+            updateSchema(exampleJson.data)
+
+        } else {
+            onErrorFun(info)
+        }
+    }
+
+    axios.get(loadUrl, {headers: getHeaders()}).then(response => {
 
         console.log(response);
 
@@ -155,36 +194,22 @@ export function loadSchema(onSchema: (schema: any) => void
             if (!response.data
                 || !response.data.data
                 || response.data.code !== 0) {
-                onError("页面加载失败")
+
+                onError("页面加载失败-1")
+
             } else {
                 //加载页面
-                const data = response.data.data;
-                let schame = data.content;
-
-                if ((typeof schame) === "string") {
-                    schame = JSON.parse(schame)
-                }
-
-                const title = data.title || data.name || data.remark;
-
-                if (store && title) {
-                    store.setTitle(title)
-                }
-                if (document && title) {
-                    document.title = title
-                }
-
-                onSchema(schame)
+                updateSchema(response.data.data);
             }
         } else if (response.status === 401) {
             onError("认证失败")
         } else {
-            onError("页面加载失败")
+            onError("页面加载失败-2")
         }
 
     }).catch(reason => {
-        console.log(reason);
-        onError("页面加载失败")
+        console.error('页面加载失败-3', reason);
+        onError("页面加载失败-3")
     })
 }
 
