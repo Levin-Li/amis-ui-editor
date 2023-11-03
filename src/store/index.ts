@@ -25,9 +25,9 @@ export const MainStore = types
       preview: false,
       isMobile: false,
       schema: types.frozen(),
-      title: "可视化页面编辑器",
-      loadUrl: types.frozen(),
-      saveUrl: types.frozen(),
+      title: "可视化页面编辑器",  //增加的属性
+      loadUrl: types.frozen(), //增加的属性
+      saveUrl: types.frozen(), //增加的属性
     })
     .views(self => ({
       get fetcher() {
@@ -93,13 +93,13 @@ export const MainStore = types
       function setIsMobile(value: boolean) {
         self.isMobile = value;
       }
-
+      //增加的方法
       function setTitle(value: string) {
         self.title = value;
       }
 
       return {
-          setTitle,
+          setTitle, //增加的方法
         toggleAsideFolded,
         toggleAsideFixed,
         toggleOffScreen,

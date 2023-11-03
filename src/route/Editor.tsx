@@ -6,7 +6,7 @@ import {toast, Select, confirm} from 'amis';
 import {currentLocale} from 'i18n-runtime';
 import {Icon} from '../icons/index';
 import {IMainStore} from '../store';
-import '../plugin/DisabledEditorPlugin'; // 用于隐藏一些不需要的Editor预置组件
+import '../editor/DisabledEditorPlugin'; // 用于隐藏一些不需要的Editor预置组件
 
 import {loadSchema, saveSchema} from '../api/SchemaApi';
 
@@ -45,7 +45,7 @@ export default inject('store')(
         }
 
         return (
-            <div className="Editor-Base">
+            <div className="Editor-Demo">
                 <div className="Editor-header">
                     <div className="Editor-title">{store.title || '可视化页面编辑器'}</div>
                     <div className="Editor-view-mode-group-container">

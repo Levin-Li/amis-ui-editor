@@ -7,9 +7,9 @@ import qs from 'qs';
 import {render as amisRender, utils, filter} from 'amis';
 
 export function schema2component(
-    schema: any,
-    transform?: Function,
-    session: string = 'page'
+  schema: any,
+  transform?: Function,
+  session: string = 'page'
 ) {
   interface SchemaRendererProps extends RouteComponentProps<{}> {
     store: IMainStore;
@@ -42,8 +42,8 @@ export function schema2component(
         const location = history.location;
         const currentQuery = qs.parse(location.search.substring(1));
         to = filter(
-            to.replace(/\$\$/g, qs.stringify(currentQuery)),
-            currentQuery
+          to.replace(/\$\$/g, qs.stringify(currentQuery)),
+          currentQuery
         );
 
         if (to && to[0] === '#') {
@@ -55,16 +55,16 @@ export function schema2component(
         const idx = to.indexOf('?');
         const idx2 = to.indexOf('#');
         let pathname = ~idx
-            ? to.substring(0, idx)
-            : ~idx2
-                ? to.substring(0, idx2)
-                : to;
+          ? to.substring(0, idx)
+          : ~idx2
+          ? to.substring(0, idx2)
+          : to;
         let search = ~idx ? to.substring(idx, ~idx2 ? idx2 : undefined) : '';
         let hash = ~idx2
-            ? to.substring(idx2)
-            : preserveHash
-                ? location.hash
-                : '';
+          ? to.substring(idx2)
+          : preserveHash
+          ? location.hash
+          : '';
 
         if (!pathname) {
           pathname = location.pathname;
@@ -105,7 +105,7 @@ export function schema2component(
           const query = qs.parse(search.substring(1));
 
           return Object.keys(query).every(
-              key => query[key] === currentQuery[key]
+            key => query[key] === currentQuery[key]
           );
         } else if (pathname === location.pathname) {
           return true;
@@ -119,49 +119,49 @@ export function schema2component(
         session,
         isCurrentUrl,
         updateLocation:
-            props.updateLocation ||
-            ((location: string, replace: boolean) => {
-              const history = this.props.history;
-              if (location === 'goBack') {
-                return history.goBack();
-              } else if (/^https?\:\/\//.test(location)) {
-                return (window.location.href = location);
-              }
+          props.updateLocation ||
+          ((location: string, replace: boolean) => {
+            const history = this.props.history;
+            if (location === 'goBack') {
+              return history.goBack();
+            } else if (/^https?\:\/\//.test(location)) {
+              return (window.location.href = location);
+            }
 
-              history[replace ? 'replace' : 'push'](
-                  normalizeLink(location, replace)
-              );
-            }),
+            history[replace ? 'replace' : 'push'](
+              normalizeLink(location, replace)
+            );
+          }),
         jumpTo:
-            props.jumpTo ||
-            ((to: string, action?: any) => {
-              const history = this.props.history;
-              if (to === 'goBack') {
-                return history.goBack();
-              }
+          props.jumpTo ||
+          ((to: string, action?: any) => {
+            const history = this.props.history;
+            if (to === 'goBack') {
+              return history.goBack();
+            }
 
-              to = normalizeLink(to);
+            to = normalizeLink(to);
 
-              if (isCurrentUrl(to)) {
-                return;
-              }
+            if (isCurrentUrl(to)) {
+              return;
+            }
 
-              if (action && action.actionType === 'url') {
-                action.blank === false
-                    ? (window.location.href = to)
-                    : window.open(to, '_blank');
-                return;
-              } else if (action && action.blank) {
-                window.open(to, '_blank');
-                return;
-              }
+            if (action && action.actionType === 'url') {
+              action.blank === false
+                ? (window.location.href = to)
+                : window.open(to, '_blank');
+              return;
+            } else if (action && action.blank) {
+              window.open(to, '_blank');
+              return;
+            }
 
-              if (/^https?:\/\//.test(to)) {
-                window.location.href = to;
-              } else {
-                history.push(to);
-              }
-            }),
+            if (/^https?:\/\//.test(to)) {
+              window.location.href = to;
+            } else {
+              history.push(to);
+            }
+          }),
         affixOffsetTop: props.embedMode ? 0 : 50
       });
     }
@@ -187,23 +187,23 @@ export function schema2component(
       }
 
       body = amisRender(
-          finalSchema,
-          {
-            data: utils.createObject({
-              ...match.params,
-              amisStore: store,
-              pathname: location.pathname,
-              params: match.params
-            }),
-            ...rest,
-            fetcher: store.fetcher,
-            notify: store.notify,
-            alert: store.alert,
-            copy: store.copy,
-            propsTransform: transform,
-            theme: store.theme
-          },
-          this.getEnv()
+        finalSchema,
+        {
+          data: utils.createObject({
+            ...match.params,
+            amisStore: store,
+            pathname: location.pathname,
+            params: match.params
+          }),
+          ...rest,
+          fetcher: store.fetcher,
+          notify: store.notify,
+          alert: store.alert,
+          copy: store.copy,
+          propsTransform: transform,
+          theme: store.theme
+        },
+        this.getEnv()
       );
 
       return <>{body}</>;

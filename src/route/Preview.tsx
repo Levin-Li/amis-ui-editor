@@ -6,7 +6,7 @@ import {RouteComponentProps, matchPath, Switch, Route} from 'react-router';
 import {Link} from 'react-router-dom';
 import NotFound from './NotFound';
 import AMISRenderer from '../component/AMISRenderer';
-// import AddPageModal from '../component/AddPageModal';
+import AddPageModal from '../component/AddPageModal';
 
 function isActive(link: any, location: any) {
   const ret = matchPath(location?.pathname, {
