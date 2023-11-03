@@ -6,9 +6,10 @@ import {IMainStore} from '../store';
 import jwtDecode from "jwt-decode";
 
 //文档地址：https://kjur.github.io/jsrsasign/api/symbols/KJUR.jws.JWS.html#.verifyJWT
-// import { KJUR, KEYUTIL, RSAKey } from 'jsrsasign';
+import {KJUR, KEYUTIL, RSAKey} from 'jsrsasign';
 
-// require('jsrsasign');
+// @ts-ignore
+// __uri('example/Example.json');
 
 /**
  *
@@ -18,11 +19,9 @@ import jwtDecode from "jwt-decode";
  * 保存使用PUT 方法
  *
  */
-// @ts-ignore
-__uri('example/Example.json');
 
 const getItem = (key: string) => {
-    let item = sessionStorage.getItem(key);
+    let item = sessionStorage.getItem(key)
     //立刻删除
     sessionStorage.removeItem(key)
     return item
@@ -85,12 +84,12 @@ if (isLocalhost && !token) {
 // // header and payload can be passed by both string and object
 //     sJWS = KJUR.jws.JWS.sign(null, '{alg:"HS256",cty:"JWT"}', '{age:21}', "aaa");
 
-    token = KJUR.jws.JWS.sign(null, {alg: "HS256", cty: "JWT"}, testTokenData, secret);
+    token = KJUR.jws.JWS.sign(null, '{alg: "HS256", cty: "JWT"}', testTokenData, secret);
 }
 
 // jwt 解密密码
-//获取字符串对象
-//jwt body{
+// 获取字符串对象
+// jwt body{
 // baseUrl:
 // loadUrl:
 // saveUrl:

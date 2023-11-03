@@ -45,6 +45,7 @@
     "jsrsasign": "^10.8.6"
   },
   "devDependencies": {
+    "@types/jsrsasign": "^10.5.11",
     "@types/lodash": "^4.14.123",
     "@types/node": "^11.13.8",
     "@types/qs": "^6.5.3",
@@ -52,6 +53,7 @@
     "@types/react-dom": "^16.9.0",
     "@types/react-router": "5.0.1",
     "@types/react-router-dom": "^5.3.3",
+    "@types/jsrsasign": "^10.5.11",
     "acorn": "^8.8.2",
     "amis-widget-cli": "^3.2.0",
     "monaco-editor-webpack-plugin": "6.0.0",
