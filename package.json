@@ -1,20 +1,16 @@
 {
   "name": "amis-ui-editor",
-  "version": "1.0.0",
-  "description": "amis 可视化编辑器",
+  "version": "1.1.0",
+  "description": "amis可视化编辑器",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "fis3 server start --www ./public --port 18080 --no-daemon",
-    "server": "fis3 server start --www ./ --port 18081 --no-daemon",
-    "build": "fis3 release prod -cd ./public",
-    "dev": "fis3 release -cwd ./public",
-
-    "prettier": "prettier --write '{component,scss,editor,renderer,route,store}/**/**/*.{js,jsx,ts,tsx,scss,json}'"
+    "dev": "amis dev",
+    "build": "amis build",
+    "format": "prettier --write \"src/**/**/*.{js,jsx,ts,tsx,vue,scss,json}\""
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/fex-team/amis-editor-demo.git"
+    "url": "git+https://github.com/aisuda/amis-editor-demo.git"
   },
   "keywords": [
     "amis",
@@ -23,32 +19,30 @@
   "author": "fex",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/fex-team/amis-editor-demo/issues"
+    "url": "https://github.com/aisuda/amis-editor-demo/issues"
   },
-  "homepage": "https://github.com/fex-team/amis-editor-demo#readme",
+  "homepage": "https://github.com/aisuda/amis-editor-demo#readme",
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.15.3",
-    "amis": "2.6.0",
-    "amis-core": "2.6.0",
-    "amis-formula": "2.6.0",
-    "amis-ui": "2.6.0",
-    "amis-editor": "^5.2.5",
-    "amis-editor-core": "^5.2.5",
-    "amis-widget": "^2.0.5",
-    "axios": "0.21.1",
-    "bootstrap": "3.4.1",
+    "amis": "3.4.3",
+    "amis-core": "3.4.3",
+    "amis-formula": "3.4.3",
+    "amis-ui": "3.4.3",
+    "amis-editor": "5.6.1",
+    "amis-editor-core": "5.6.1",
+    "axios": "0.21.2",
     "copy-to-clipboard": "^3.2.0",
-    "mobx": "^4.5.0",
-    "mobx-react": "^6.3.1",
-    "mobx-state-tree": "^3.17.3",
-    "qs": "6.5.1",
+    "mobx": "4.15.7",
+    "mobx-react": "6.3.1",
+    "mobx-state-tree": "3.17.3",
+    "qs": "6.5.3",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
     "react-hook-form": "^7.39.3",
     "react-router": "5.0.1",
     "react-router-dom": "5.0.1",
     "jwt-decode": "^3.1.2",
-    "jsrsasign": "^10.5.23"
+    "jsrsasign": "^10.8.6"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.123",
@@ -57,26 +51,12 @@
     "@types/react": "^16.9.0",
     "@types/react-dom": "^16.9.0",
     "@types/react-router": "5.0.1",
-    "@types/react-router-dom": "^4.3.2",
-    "axios-mock-adapter": "^1.16.0",
-    "bce-sdk-js": "^0.2.9",
-    "concurrently": "^6.2.0",
-    "fis-optimizer-terser": "^1.0.1",
-    "fis-parser-sass": "^1.0.1",
-    "fis-parser-svgr": "^1.0.1",
-    "fis3": "3.4.41",
-    "fis3-deploy-skip-packed": "0.0.5",
-    "fis3-hook-commonjs": "^0.1.31",
-    "fis3-hook-node_modules": "^2.3.1",
-    "fis3-packager-deps-pack": "^0.1.2",
-    "fis3-parser-typescript": "^1.4.0",
-    "fis3-postpackager-loader": "^2.1.11",
-    "fis3-prepackager-stand-alone-pack": "^1.0.2",
-    "fis3-preprocessor-js-require-css": "^0.1.3",
-    "fis3-preprocessor-js-require-file": "^0.1.3",
-    "fis3-hook-relative":"^2.0.3",
-    "fs-walk": "0.0.2",
+    "@types/react-router-dom": "^5.3.3",
+    "acorn": "^8.8.2",
+    "amis-widget-cli": "^3.2.0",
+    "monaco-editor-webpack-plugin": "6.0.0",
     "prettier": "^2.2.1",
+    "sass": "^1.63.4",
     "typescript": "^4.5.5"
   }
 }
