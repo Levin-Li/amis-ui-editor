@@ -27,7 +27,7 @@ const exj = __uri('../example/Example.json');
  * 数据解密
  * @param resp
  */
-const respDecrypt = resp => {
+const respDecrypt = (resp:any) => {
 
     if (!resp.sign) {
         return resp.data

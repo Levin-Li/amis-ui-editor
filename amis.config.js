@@ -69,7 +69,7 @@ module.exports = {
     assetsPublicPath: './', // 设置静态资源的引用路径（根域名+路径）
     assetsSubDirectory: '', // 资源引用二级路径
     productionSourceMap: false,
-    productionGzip: true,
+    productionGzip: false,
     productionGzipExtensions: ['js', 'css', 'json'],
     plugins: [new MonacoWebpackPlugin()],
     bundleAnalyzerReport: false,
