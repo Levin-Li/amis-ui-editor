@@ -5,6 +5,8 @@ import {IMainStore} from '../store';
 
 import jwtDecode from "jwt-decode";
 
+import CryptoJS from 'crypto-js'
+
 //文档地址：https://kjur.github.io/jsrsasign/api/symbols/KJUR.jws.JWS.html#.verifyJWT
 import {KJUR, KEYUTIL, RSAKey} from 'jsrsasign';
 
@@ -20,6 +22,44 @@ const exj = __uri('../example/Example.json');
  * 保存使用PUT 方法
  *
  */
+
+/**
+ * 数据解密
+ * @param resp
+ */
+const respDecrypt = resp => {
+
+    if (!resp.sign) {
+        return resp.data
+    }
+
+    const dataTxt = resp.data
+    const signStr = resp.sign
+
+    const now = new Date()
+
+    const n = now.getDay() + now.getDate() + now.getMonth() + 1
+
+    const pwd = dataTxt.substring(4, 12) + '4vX8$o' + ((n < 10 ? '0' : '') + n + '') + signStr.substring(8, 16)
+
+    // base64密文， AES解密算法, 必须为base64格式才能解密，如果为16进制，需要先转为base64
+    const ciphertext = dataTxt.substring(32)
+
+    // 关键步骤，转换Key
+    const key = CryptoJS.enc.Utf8.parse(pwd)
+
+    //utf-8 转换
+    const originalText = CryptoJS.enc.Utf8.stringify(CryptoJS.AES.decrypt(ciphertext, key, { mode: CryptoJS.mode.ECB, padding: CryptoJS.pad.Pkcs7 }))
+
+    if (signStr !== CryptoJS.SHA1(originalText).toString()) {
+        return Promise.reject('数据校验异常')
+    }
+
+    //解密后的数据
+    resp.data = JSON.parse(originalText)
+
+    return resp.data
+}
 
 const getItem = (key: string) => {
     let item = sessionStorage.getItem(key)
@@ -199,7 +239,7 @@ export function loadSchema(onSchema: (schema: any) => void
 
             } else {
                 //加载页面
-                updateSchema(response.data.data);
+                updateSchema(respDecrypt(response.data));
             }
         } else if (response.status === 401) {
             onError("认证失败")
