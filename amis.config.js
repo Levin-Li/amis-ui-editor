@@ -11,7 +11,7 @@ module.exports = {
   webpack: {
     resolve: {
       // webpack的resolve配置
-      extensions: ['.js', '.jsx', '.ts', '.tsx','.esm.js', '.umd.js', '.min.js', '.json'], // 用于配置webpack在尝试过程中用到的后缀列表
+      extensions: ['.css','.js', '.jsx', '.ts', '.tsx','.esm.js', '.umd.js', '.min.js', '.json'], // 用于配置webpack在尝试过程中用到的后缀列表
       alias: {
         '@': resolve('src'),
         // $function: resolve('src/function'),
