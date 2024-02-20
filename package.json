@@ -24,18 +24,14 @@
   "homepage": "https://github.com/aisuda/amis-editor-demo#readme",
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.15.3",
-    "animate.css": "^4.1.1",
-    "amis": "3.4.3",
-    "amis-core": "3.4.3",
-    "amis-editor": "5.6.1",
-    "amis-editor-core": "5.6.1",
-    "amis-formula": "3.4.3",
-    "amis-ui": "3.4.3",
+    "amis": "6.0.0",
+    "amis-core": "6.0.0",
+    "amis-formula": "6.0.0",
+    "amis-ui": "6.0.0",
+    "amis-editor": "6.0.0",
+    "amis-editor-core": "6.0.0",
     "axios": "0.21.2",
     "copy-to-clipboard": "^3.2.0",
-    "crypto-js": "4.1.1",
-    "jsrsasign": "^10.8.6",
-    "jwt-decode": "^3.1.2",
     "mobx": "4.15.7",
     "mobx-react": "6.3.1",
     "mobx-state-tree": "3.17.3",
@@ -45,7 +41,9 @@
     "react-hook-form": "^7.39.3",
     "react-router": "5.0.1",
     "react-router-dom": "5.0.1",
-    "vue-template-compiler": "^2.7.15"
+    "crypto-js": "4.1.1",
+    "jsrsasign": "^10.8.6",
+    "jwt-decode": "^3.1.2"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.123",
@@ -55,13 +53,13 @@
     "@types/react-dom": "^16.9.0",
     "@types/react-router": "5.0.1",
     "@types/react-router-dom": "^5.3.3",
-    "@types/jsrsasign": "^10.5.11",
-    "@types/crypto-js": "^4.1.1",
     "acorn": "^8.8.2",
     "amis-widget-cli": "^3.2.3",
     "monaco-editor-webpack-plugin": "6.0.0",
     "prettier": "^2.2.1",
     "sass": "^1.63.4",
-    "typescript": "^4.5.5"
+    "typescript": "^4.5.5",
+    "@types/jsrsasign": "^10.5.11",
+    "@types/crypto-js": "^4.1.1"
   }
 }

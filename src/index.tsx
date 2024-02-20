@@ -1,10 +1,6 @@
 /**
  * @file entry of this example.
  */
-
-// import './css/iconfont/iconfont.css';
-import 'animate.css/animate.css';
-
 import * as React from 'react';
 import ReactDOM from 'react-dom';
 import App from './App';
@@ -16,9 +12,11 @@ import 'amis/sdk/iconfont.css';
 import 'amis-editor-core/lib/style.css';
 import './scss/style.scss';
 import {setDefaultTheme} from 'amis';
-
+import {setThemeConfig} from 'amis-editor-core';
+import themeConfig from 'amis-theme-editor-helper/lib/systemTheme/cxd';
 
 setDefaultTheme('cxd');
+setThemeConfig(themeConfig);
 
 export function createLink(url: string, id?: string) {
     const link = document.createElement("link");

@@ -11,7 +11,7 @@ module.exports = {
   webpack: {
     resolve: {
       // webpack的resolve配置
-      extensions: ['.css','.js', '.jsx', '.ts', '.tsx','.esm.js', '.umd.js', '.min.js', '.json'], // 用于配置webpack在尝试过程中用到的后缀列表
+      extensions: ['.js', '.jsx', '.ts', '.tsx','.esm.js', '.umd.js', '.min.js', '.json'], // 用于配置webpack在尝试过程中用到的后缀列表
       alias: {
         '@': resolve('src'),
         // $function: resolve('src/function'),
@@ -64,7 +64,7 @@ module.exports = {
     },
     // 用于构建生产环境代码的相关配置信息
     NODE_ENV: 'production',
-    assetsRoot: resolve('./editor-5.6.1-v2'), // 打包后的文件绝对路径（物理路径）
+    assetsRoot: resolve('./editor-6.0.0'), // 打包后的文件绝对路径（物理路径）
     // assetsPublicPath: 'https://aisuda.github.io/amis-editor-demo/demo-5.6.1-v2/', // 设置静态资源的引用路径（根域名+路径）
     assetsPublicPath: './', // 设置静态资源的引用路径（根域名+路径）
     assetsSubDirectory: '', // 资源引用二级路径
