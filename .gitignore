@@ -65,3 +65,5 @@ gh-pages
 .DS_Store
 
 package-lock.json
+
+editor-*
