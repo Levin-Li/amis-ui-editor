@@ -1,64 +1,99 @@
 import axios from "axios";
-import {alert} from 'amis';
+import {alert, uuid, uuidv4} from 'amis';
 import {__uri} from 'amis-editor';
 import {IMainStore} from '../store';
 
-import jwtDecode from "jwt-decode";
-
 import CryptoJS from 'crypto-js'
-
-//文档地址：https://kjur.github.io/jsrsasign/api/symbols/KJUR.jws.JWS.html#.verifyJWT
-import {KJUR, KEYUTIL, RSAKey} from 'jsrsasign';
 
 const exampleJson = require('../example/Example.json');
 
 const exj = __uri('../example/Example.json');
 
 /**
- *
- * 加载和保存的API
- *
- * 加载地址使用GET方法
- * 保存使用PUT 方法
- *
- */
-
-/**
  * 数据解密
- * @param resp
+ * @param sign sha1 签名串，16进制字符串
+ * @param dataTxt 密文 ，密文前32个字符串，不是数据，是密码
  */
-const respDecrypt = (resp:any) => {
+const decrypt = (sign: string, dataTxt: any) => {
 
-    if (!resp.sign) {
-        return resp.data
+    if (!sign || sign.trim().length < 32 || !dataTxt || !(dataTxt instanceof String)) {
+        //如果没有签名串
+        //签名串长度小于32
+        //如果不是字符串，则直接返回
+        return dataTxt
     }
 
-    const dataTxt = resp.data
-    const signStr = resp.sign
+    const now = new Date();
 
-    const now = new Date()
+    //获取当前UTC日期，如果大于8号，则从8号开始，否则从当前日期开始
+    const startIndex = now.getUTCDate() >= 20 ? (now.getUTCDate() - 8) : now.getUTCDate()
 
-    const n = now.getDay() + now.getDate() + now.getMonth() + 1
+    //中间密码 UTC日期
+    const middlePwd = CryptoJS.SHA1(location.hostname + now.toISOString().substring(0, 10)).toString(CryptoJS.enc.Hex).substring(startIndex, startIndex + 8)
 
-    const pwd = dataTxt.substring(4, 12) + '4vX8$o' + ((n < 10 ? '0' : '') + n + '') + signStr.substring(8, 16)
+    const prefix = dataTxt.substring(0, 32)
 
-    // base64密文， AES解密算法, 必须为base64格式才能解密，如果为16进制，需要先转为base64
-    const ciphertext = dataTxt.substring(32)
+    //密码总共32位字符，分别从数据，签名和中间密码中各取8个字符
+    const pwd = prefix.substring(startIndex, startIndex + 8) + middlePwd + sign.substring(startIndex, startIndex + 8)
 
-    // 关键步骤，转换Key
-    const key = CryptoJS.enc.Utf8.parse(pwd)
+    //解密，并且转换utf-8  // base64密文， AES解密算法, 必须为base64格式才能解密，如果为16进制，需要先转为base64
+    const originalText = CryptoJS.enc.Utf8.stringify(CryptoJS.AES.decrypt( /* 前面32个字符不是数据 */dataTxt.substring(32), /* 解密密码 */ CryptoJS.enc.Utf8.parse(pwd), /* 解密配置 */ {
+        mode: CryptoJS.mode.ECB,
+        padding: CryptoJS.pad.Pkcs7
+    }))
 
-    //utf-8 转换
-    const originalText = CryptoJS.enc.Utf8.stringify(CryptoJS.AES.decrypt(ciphertext, key, { mode: CryptoJS.mode.ECB, padding: CryptoJS.pad.Pkcs7 }))
-
-    if (signStr !== CryptoJS.SHA1(originalText).toString()) {
+    //解密后做SHA1哈希校验
+    if (!originalText || sign !== CryptoJS.SHA1(originalText).toString(CryptoJS.enc.Hex)) {
         return Promise.reject('数据校验异常')
     }
 
     //解密后的数据
-    resp.data = JSON.parse(originalText)
+    // return JSON.parse(originalText)
+    return originalText
+}
 
-    return resp.data
+/**
+ * 数据加密
+ * @param signStr sha1 签名串，16进制字符串
+ * @param dataTxt 密文 ，密文前32个字符串，不是数据，是密码
+ */
+const encrypt = (dataTxt: string) => {
+
+    if (!dataTxt || dataTxt.trim().length < 1) {
+        //如果不是字符串，则直接返回
+        return dataTxt
+    }
+
+    //生成签名
+    const sign = CryptoJS.SHA1(dataTxt).toString(CryptoJS.enc.Hex)
+
+    const now = new Date();
+
+    //获取当前UTC日期，如果大于8号，则从8号开始，否则从当前日期开始
+    const startIndex = now.getUTCDate() >= 20 ? (now.getUTCDate() - 8) : now.getUTCDate()
+
+    //中间密码 UTC日期
+    const middlePwd = CryptoJS.SHA1(location.hostname + now.toISOString().substring(0, 10)).toString(CryptoJS.enc.Hex).substring(startIndex, startIndex + 8)
+
+    //'1b9d6bcd-bbfd-4b2d-9b5d-ab8dfbbd4bed'
+    const prefix = uuidv4().replace('-', ''); //随机32这个字符串
+
+    //密码总共32位字符，分别从数据，签名和中间密码中各取8个字符
+    const pwd = prefix.substring(startIndex, startIndex + 8) + middlePwd + sign.substring(startIndex, startIndex + 8)
+
+    //加密，并且转换utf-8  // base64密文， AES加密算法
+    const ciphertext = CryptoJS.AES.encrypt(dataTxt, /* 密码 */ CryptoJS.enc.Utf8.parse(pwd), /* 算法配置 */ {
+        mode: CryptoJS.mode.ECB,
+        padding: CryptoJS.pad.Pkcs7
+    }).ciphertext.toString(CryptoJS.enc.Utf8)
+
+    //解密后的数据
+    return {sign, data: prefix + ciphertext}
+}
+
+const decryptResp = (resp: any) => {
+    //解密，转JSON 对象
+    return resp.data = JSON.parse(decrypt(resp.sign || resp.signStr, resp.data))
 }
 
 const getItem = (key: string) => {
@@ -70,30 +105,25 @@ const getItem = (key: string) => {
 
 const searchParams = new URL(location.href).searchParams;
 
-// console.log(process.env)
-
 const isLocalhost = location.hostname === '127.0.0.1' || location.hostname === 'localhost';
 
-const tokenKey = "token_" + location.href;
-const secretKey = tokenKey + "_secret";
+const path = searchParams.get("path");
+let config = searchParams.get("config") || window.__config;
+let sign = searchParams.get("sign") || window.__sign;
 
-//页面支持3个参数
-// 参数：a 加密算法
-// 参数：t token
-// 参数：p 密码
-
-//jwt token 数据
-let token = searchParams.get("t") || getItem(tokenKey);
-
-//jwt token 解密密码
-let secret = "llw@oak" + (searchParams.get("p") || getItem(secretKey));
-
-//参数优先
-const alg = searchParams.get("a") || 'HS256';
 //////////////////////////////////////////////////////////////////////////////////
 
+//如果有签名和加密
+if (config && sign) {
+    config = decrypt(sign, config)
+}
+
+if (config && config instanceof String) {
+    config = JSON.parse(config)
+}
+
 //如果是本机，模拟测试
-if (isLocalhost && !token) {
+if (isLocalhost && !config) {
 
     let index = location.pathname.lastIndexOf("/");
 
@@ -101,81 +131,42 @@ if (isLocalhost && !token) {
 
     console.debug("url path:" + location.pathname + ",currentPath:" + currentPath)
 
-    let testTokenData = {
+    config = {
+        headers: {},
         loadUrl: currentPath + "/example/Example.json",
         saveUrl: currentPath + "/example/Save",
         baseUrl: location.protocol + "//" + location.hostname + ":" + (location.port || '80')
     }
-
-    secret = "llw@oak" + "-secret:" + new Date().getTime();
-
-    //方法描述：KJUR.jws.JWS.sign(alg, spHead, spPayload, key, pass)
-
-    // sign HS256 signature with password "aaa" implicitly handled as string
-//     sJWS = KJUR.jws.JWS.sign(null, {alg: "HS256", cty: "JWT"}, {age: 21}, "aaa");
-// // sign HS256 signature with password "6161" implicitly handled as hex
-//     sJWS = KJUR.jws.JWS.sign(null, {alg: "HS256", cty: "JWT"}, {age: 21}, "6161");
-// // sign HS256 signature with base64 password
-//     sJWS = KJUR.jws.JWS.sign(null, {alg: "HS256"}, {age: 21}, {b64: "Mi/8..a="});
-// // sign RS256 signature with PKCS#8 PEM RSA private key
-//     sJWS = KJUR.jws.JWS.sign(null, {alg: "RS256"}, {age: 21}, "-----BEGIN PRIVATE KEY...");
-// // sign RS256 signature with PKCS#8 PEM ECC private key with passcode
-//     sJWS = KJUR.jws.JWS.sign(null, {alg: "ES256"}, {age: 21},
-//         "-----BEGIN PRIVATE KEY...", "keypass");
-// // header and payload can be passed by both string and object
-//     sJWS = KJUR.jws.JWS.sign(null, '{alg:"HS256",cty:"JWT"}', '{age:21}', "aaa");
-
-    token = KJUR.jws.JWS.sign('HS256', '{alg: "HS256", cty: "JWT"}', testTokenData, secret);
 }
 
-// jwt 解密密码
-// 获取字符串对象
-// jwt body{
-// baseUrl:
-// loadUrl:
-// saveUrl:
-// headers:
-// }
-
-if (isLocalhost) {
-    console.debug("token:", token)
-    console.debug("secret:", secret)
-    console.debug("alg:", alg)
+if (!config.baseUrl) {
+    config.baseUrl = location.protocol + "//" + location.host;
 }
 
-//jwt token验证失败
-if (!KJUR.jws.JWS.verifyJWT(token, secret, {alg: [alg, 'RS256', 'ES256', 'PS256']})) {
-    throw new Error("token verify fail")
-}
-
-//token 解码，不验证
-// const tokenData: any = {loadUrl: "/public/Role.json"};// jwt_decode(token, {header: false})
-const tokenData: any = jwtDecode(token, {header: false}) || {}
-
-if (!tokenData.baseUrl) {
-    tokenData.baseUrl = location.protocol + "//" + location.host;
+if (path && path.trim().length > 0) {
+    config.path = path;
 }
 
 if (isLocalhost) {
-    console.log(tokenData)
+    console.debug("config:", config)
 }
 
 //http://127.0.0.1:18081/public/127.0.0.1:18081//public/Role.json
 function completeUrl(url: string) {
     return (url.trim().startsWith("http://") || url.trim().startsWith("https://"))
-        ? url : (tokenData.baseUrl + ("/" + url).replace("//", "/"));
+        ? url : (config.baseUrl + ("/" + url).replace("//", "/"));
 }
 
 function getHeaders() {
-    return tokenData.headers || {}
+    return config.headers || {}
 }
 
 function getLoadUrl() {
-    return completeUrl(tokenData.loadUrl);
+    return completeUrl(config.loadUrl);
 }
 
 function getSaveUrl() {
-    return completeUrl(tokenData.saveUrl || tokenData.loadUrl);
+    return completeUrl(config.saveUrl || config.loadUrl);
 }
 
 
@@ -239,7 +230,7 @@ export function loadSchema(onSchema: (schema: any) => void
 
             } else {
                 //加载页面
-                updateSchema(respDecrypt(response.data));
+                updateSchema(decryptResp(response.data));
             }
         } else if (response.status === 401) {
             onError("认证失败")
