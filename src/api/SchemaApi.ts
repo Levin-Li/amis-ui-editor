@@ -9,14 +9,23 @@ const exampleJson = require('../example/Example.json');
 
 const exj = __uri('../example/Example.json');
 
+
+const replaceAll = (txt: string, keyword: string, replacement: string): string => {
+    while (txt.indexOf(keyword) > -1) {
+        txt = txt.replace(keyword, replacement)
+    }
+    return txt
+}
+
 /**
  * 数据解密
  * @param sign sha1 签名串，16进制字符串
- * @param dataTxt 密文 ，密文前32个字符串，不是数据，是密码
+ * @param dataTxt base64编码的密文 ，密文前32个字符串，不是数据，是密码
  */
 const decrypt = (sign: string, dataTxt: any) => {
 
-    if (!sign || sign.trim().length < 32 || !dataTxt || !(dataTxt instanceof String)) {
+    //"112bb3ed9aceb7e14d94a49372875b2b134e8497"
+    if (!sign || sign.trim().length < 32 || !dataTxt || (typeof dataTxt !== 'string') || dataTxt.trim().length < 32) {
         //如果没有签名串
         //签名串长度小于32
         //如果不是字符串，则直接返回
@@ -31,16 +40,15 @@ const decrypt = (sign: string, dataTxt: any) => {
     //中间密码 UTC日期
     const middlePwd = CryptoJS.SHA1(location.hostname + now.toISOString().substring(0, 10)).toString(CryptoJS.enc.Hex).substring(startIndex, startIndex + 8)
 
-    const prefix = dataTxt.substring(0, 32)
-
     //密码总共32位字符，分别从数据，签名和中间密码中各取8个字符
-    const pwd = prefix.substring(startIndex, startIndex + 8) + middlePwd + sign.substring(startIndex, startIndex + 8)
+    const pwd = dataTxt.substring(0, 32).substring(startIndex, startIndex + 8) + middlePwd + sign.substring(startIndex, startIndex + 8)
 
     //解密，并且转换utf-8  // base64密文， AES解密算法, 必须为base64格式才能解密，如果为16进制，需要先转为base64
-    const originalText = CryptoJS.enc.Utf8.stringify(CryptoJS.AES.decrypt( /* 前面32个字符不是数据 */dataTxt.substring(32), /* 解密密码 */ CryptoJS.enc.Utf8.parse(pwd), /* 解密配置 */ {
+
+    const originalText = (CryptoJS.AES.decrypt( /* 前面32个字符不是数据 */  dataTxt.substring(32), /* 解密密码 */ CryptoJS.enc.Utf8.parse(pwd), /* 解密配置 */ {
         mode: CryptoJS.mode.ECB,
         padding: CryptoJS.pad.Pkcs7
-    }))
+    })).toString(CryptoJS.enc.Utf8)
 
     //解密后做SHA1哈希校验
     if (!originalText || sign !== CryptoJS.SHA1(originalText).toString(CryptoJS.enc.Hex)) {
@@ -48,14 +56,13 @@ const decrypt = (sign: string, dataTxt: any) => {
     }
 
     //解密后的数据
-    // return JSON.parse(originalText)
     return originalText
 }
 
 /**
  * 数据加密
- * @param signStr sha1 签名串，16进制字符串
- * @param dataTxt 密文 ，密文前32个字符串，不是数据，是密码
+ * @param sign sha1 签名串，16进制字符串
+ * @param dataTxt base64编码的密文 ，密文前32个字符串，不是数据，是密码
  */
 const encrypt = (dataTxt: string) => {
 
@@ -64,8 +71,11 @@ const encrypt = (dataTxt: string) => {
         return dataTxt
     }
 
+    //utf8数组
+    const utf8data = CryptoJS.enc.Utf8.parse(dataTxt)
+
     //生成签名
-    const sign = CryptoJS.SHA1(dataTxt).toString(CryptoJS.enc.Hex)
+    const sign = CryptoJS.SHA1(utf8data).toString(CryptoJS.enc.Hex)
 
     const now = new Date();
 
@@ -76,19 +86,26 @@ const encrypt = (dataTxt: string) => {
     const middlePwd = CryptoJS.SHA1(location.hostname + now.toISOString().substring(0, 10)).toString(CryptoJS.enc.Hex).substring(startIndex, startIndex + 8)
 
     //'1b9d6bcd-bbfd-4b2d-9b5d-ab8dfbbd4bed'
-    const prefix = uuidv4().replace('-', ''); //随机32这个字符串
+    const prefix = replaceAll(uuidv4(), "-", ""); //随机32这个字符串
 
     //密码总共32位字符，分别从数据，签名和中间密码中各取8个字符
     const pwd = prefix.substring(startIndex, startIndex + 8) + middlePwd + sign.substring(startIndex, startIndex + 8)
 
-    //加密，并且转换utf-8  // base64密文， AES加密算法
-    const ciphertext = CryptoJS.AES.encrypt(dataTxt, /* 密码 */ CryptoJS.enc.Utf8.parse(pwd), /* 算法配置 */ {
+    //加密，并生成base64字符串
+    const ciphertext = CryptoJS.AES.encrypt(utf8data, /* 密码 */ CryptoJS.enc.Utf8.parse(pwd), /* 解密配置 */ {
         mode: CryptoJS.mode.ECB,
         padding: CryptoJS.pad.Pkcs7
-    }).ciphertext.toString(CryptoJS.enc.Utf8)
+    }).toString()
 
-    //解密后的数据
+    //加密后的数据
     return {sign, data: prefix + ciphertext}
+}
+
+const testData = "加密测试数据123"
+const encryptData = encrypt(testData);
+// @ts-ignore
+if (testData !== decrypt(encryptData.sign, encryptData.data)) {
+    throw new Error('加解密测试异常')
 }
 
 const decryptResp = (resp: any) => {
@@ -108,7 +125,11 @@ const searchParams = new URL(location.href).searchParams;
 const isLocalhost = location.hostname === '127.0.0.1' || location.hostname === 'localhost';
 
 const path = searchParams.get("path");
+
+// @ts-ignore
 let config = searchParams.get("config") || window.__config;
+
+// @ts-ignore
 let sign = searchParams.get("sign") || window.__sign;
 
 //////////////////////////////////////////////////////////////////////////////////
@@ -118,7 +139,9 @@ if (config && sign) {
     config = decrypt(sign, config)
 }
 
-if (config && config instanceof String) {
+if (config && (typeof config === "string")) {
+
+    // @ts-ignore
     config = JSON.parse(config)
 }
 
@@ -148,7 +171,7 @@ if (path && path.trim().length > 0) {
 }
 
 if (isLocalhost) {
-    console.debug("config:", config)
+    console.debug("amis editor config:", config)
 }
 
 //http://127.0.0.1:18081/public/127.0.0.1:18081//public/Role.json
