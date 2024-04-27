@@ -111,7 +111,7 @@ const encrypt = (dataTxt: string, domain: string) => {
 
 const decryptResp = (resp: any) => {
     //解密，转JSON 对象
-    return resp.data = JSON.parse(decrypt(resp.sign || resp.signStr, resp.data, null))
+    return resp.data = JSON.parse(decrypt(resp.sign || resp.signStr, resp.data, resp.domain))
 }
 
 const getItem = (key: string) => {
@@ -214,9 +214,8 @@ function getLoadUrl() {
 }
 
 function getSaveUrl() {
-    return completeUrl(config.saveUrl || config.loadUrl);
+    return completeUrl(config.saveUrl);
 }
-
 
 /**
  * 加载页面
@@ -306,7 +305,7 @@ export function saveSchema(schema: any
 
     console.log(schema);
 
-    axios.put(getSaveUrl(), {content: JSON.stringify(schema)}, {headers: getHeaders()})
+    axios.put(getSaveUrl(), encrypt(JSON.stringify(schema), null), {headers: getHeaders()})
         .then(response => {
 
             console.log(response);
@@ -319,6 +318,13 @@ export function saveSchema(schema: any
                 } else {
                     //保存页面
                     //store.updateSchema(response.data.data.content)
+                    //更新下次保存的URL，
+                    if (response.data.data
+                        && typeof response.data.data === "object") {
+                        //更新
+                        config = {...config, ...response.data.data};
+                    }
+
                     onSuccess(response)
                 }
             } else if (response.status === 401) {
