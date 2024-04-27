@@ -22,7 +22,7 @@ const replaceAll = (txt: string, keyword: string, replacement: string): string =
  * @param sign sha1 签名串，16进制字符串
  * @param dataTxt base64编码的密文 ，密文前32个字符串，不是数据，是密码
  */
-const decrypt = (sign: string, dataTxt: any) => {
+const decrypt = (sign: string, dataTxt: any, domain: string) => {
 
     //"112bb3ed9aceb7e14d94a49372875b2b134e8497"
     if (!sign || sign.trim().length < 32 || !dataTxt || (typeof dataTxt !== 'string') || dataTxt.trim().length < 32) {
@@ -32,13 +32,17 @@ const decrypt = (sign: string, dataTxt: any) => {
         return dataTxt
     }
 
+    if (!domain) {
+        domain = location.hostname;
+    }
+
     const now = new Date();
 
     //获取当前UTC日期，如果大于8号，则从8号开始，否则从当前日期开始
     const startIndex = now.getUTCDate() >= 20 ? (now.getUTCDate() - 8) : now.getUTCDate()
 
     //中间密码 UTC日期
-    const middlePwd = CryptoJS.SHA1(location.hostname + now.toISOString().substring(0, 10)).toString(CryptoJS.enc.Hex).substring(startIndex, startIndex + 8)
+    const middlePwd = CryptoJS.SHA1(domain + now.toISOString().substring(0, 10)).toString(CryptoJS.enc.Hex).substring(startIndex, startIndex + 8)
 
     //密码总共32位字符，分别从数据，签名和中间密码中各取8个字符
     const pwd = dataTxt.substring(0, 32).substring(startIndex, startIndex + 8) + middlePwd + sign.substring(startIndex, startIndex + 8)
@@ -47,7 +51,7 @@ const decrypt = (sign: string, dataTxt: any) => {
 
     const originalText = (CryptoJS.AES.decrypt( /* 前面32个字符不是数据 */  dataTxt.substring(32), /* 解密密码 */ CryptoJS.enc.Utf8.parse(pwd), /* 解密配置 */ {
         mode: CryptoJS.mode.ECB,
-        padding: CryptoJS.pad.Pkcs7
+        padding: CryptoJS.pad.ZeroPadding
     })).toString(CryptoJS.enc.Utf8)
 
     //解密后做SHA1哈希校验
@@ -64,11 +68,15 @@ const decrypt = (sign: string, dataTxt: any) => {
  * @param sign sha1 签名串，16进制字符串
  * @param dataTxt base64编码的密文 ，密文前32个字符串，不是数据，是密码
  */
-const encrypt = (dataTxt: string) => {
+const encrypt = (dataTxt: string, domain: string) => {
 
     if (!dataTxt || dataTxt.trim().length < 1) {
         //如果不是字符串，则直接返回
         return dataTxt
+    }
+
+    if (!domain) {
+        domain = location.hostname;
     }
 
     //utf8数组
@@ -83,7 +91,7 @@ const encrypt = (dataTxt: string) => {
     const startIndex = now.getUTCDate() >= 20 ? (now.getUTCDate() - 8) : now.getUTCDate()
 
     //中间密码 UTC日期
-    const middlePwd = CryptoJS.SHA1(location.hostname + now.toISOString().substring(0, 10)).toString(CryptoJS.enc.Hex).substring(startIndex, startIndex + 8)
+    const middlePwd = CryptoJS.SHA1(domain + now.toISOString().substring(0, 10)).toString(CryptoJS.enc.Hex).substring(startIndex, startIndex + 8)
 
     //'1b9d6bcd-bbfd-4b2d-9b5d-ab8dfbbd4bed'
     const prefix = replaceAll(uuidv4(), "-", ""); //随机32这个字符串
@@ -94,23 +102,16 @@ const encrypt = (dataTxt: string) => {
     //加密，并生成base64字符串
     const ciphertext = CryptoJS.AES.encrypt(utf8data, /* 密码 */ CryptoJS.enc.Utf8.parse(pwd), /* 解密配置 */ {
         mode: CryptoJS.mode.ECB,
-        padding: CryptoJS.pad.Pkcs7
+        padding: CryptoJS.pad.ZeroPadding
     }).toString()
 
     //加密后的数据
-    return {sign, data: prefix + ciphertext}
-}
-
-const testData = "加密测试数据123"
-const encryptData = encrypt(testData);
-// @ts-ignore
-if (testData !== decrypt(encryptData.sign, encryptData.data)) {
-    throw new Error('加解密测试异常')
+    return {domain, sign, data: prefix + ciphertext}
 }
 
 const decryptResp = (resp: any) => {
     //解密，转JSON 对象
-    return resp.data = JSON.parse(decrypt(resp.sign || resp.signStr, resp.data))
+    return resp.data = JSON.parse(decrypt(resp.sign || resp.signStr, resp.data, null))
 }
 
 const getItem = (key: string) => {
@@ -119,7 +120,6 @@ const getItem = (key: string) => {
     sessionStorage.removeItem(key)
     return item
 }
-
 const searchParams = new URL(location.href).searchParams;
 
 const isLocalhost = location.hostname === '127.0.0.1' || location.hostname === 'localhost';
@@ -134,16 +134,24 @@ let sign = searchParams.get("sign") || window.__sign;
 
 //////////////////////////////////////////////////////////////////////////////////
 
-//如果有签名和加密
-if (config && sign) {
-    config = decrypt(sign, config)
+const testData = decrypt("834890b51fa543531795a2ce6299deb4a697c01f", "ee93197a9d2940588459eca2f4405a9eXTqSTny5n9dq1FNuguh/zaSTIqVKn1zjDHfjHO2pcZA=", "www.baidu.com")
+
+if (isLocalhost) {
+    console.debug("测试数据：", testData)
 }
 
-if (config && (typeof config === "string")) {
+const encryptData = encrypt(testData, null);
 
-    // @ts-ignore
-    config = JSON.parse(config)
+if (isLocalhost) {
+    console.debug("encryptData:", encryptData)
 }
+
+// @ts-ignore
+if (testData !== decrypt(encryptData.sign, encryptData.data)) {
+    throw new Error('加解密测试异常')
+}
+
+//////////////////////////////////////////////////////////////
 
 //如果是本机，模拟测试
 if (isLocalhost && !config) {
@@ -158,8 +166,25 @@ if (isLocalhost && !config) {
         headers: {},
         loadUrl: currentPath + "/example/Example.json",
         saveUrl: currentPath + "/example/Save",
-        baseUrl: location.protocol + "//" + location.hostname + ":" + (location.port || '80')
     }
+
+    const encryptData = encrypt(JSON.stringify(config), null);
+
+    // @ts-ignore
+    config = encryptData.data;
+
+    // @ts-ignore
+    sign = encryptData.sign;
+}
+
+//如果有签名和加密
+if (config && sign) {
+    config = decrypt(sign, config, null)
+}
+
+if (config && (typeof config === "string")) {
+    // @ts-ignore
+    config = JSON.parse(config)
 }
 
 if (!config.baseUrl) {
