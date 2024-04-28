@@ -134,7 +134,7 @@ let sign = searchParams.get("sign") || window.__sign;
 
 //////////////////////////////////////////////////////////////////////////////////
 
-const testData = decrypt("834890b51fa543531795a2ce6299deb4a697c01f", "ee93197a9d2940588459eca2f4405a9eXTqSTny5n9dq1FNuguh/zaSTIqVKn1zjDHfjHO2pcZA=", "www.baidu.com")
+const testData = "This is 测试数据"
 
 if (isLocalhost) {
     console.debug("测试数据：", testData)
