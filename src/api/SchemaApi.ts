@@ -72,7 +72,7 @@ const encrypt = (dataTxt: string, domain: string) => {
 
     if (!dataTxt || dataTxt.trim().length < 1) {
         //如果不是字符串，则直接返回
-        return dataTxt
+        return {domain, sign: "", data: dataTxt}
     }
 
     if (!domain) {
@@ -255,7 +255,10 @@ export function loadSchema(onSchema: (schema: any) => void
 
             onErrorFun(info + " , 将加载默认示例页面！")
 
-            console.info('加载示例', exampleJson)
+            if (isLocalhost) {
+                console.info('加载示例', exampleJson)
+            }
+
 
             updateSchema(exampleJson.data)
 
@@ -266,14 +269,16 @@ export function loadSchema(onSchema: (schema: any) => void
 
     axios.get(loadUrl, {headers: getHeaders()}).then(response => {
 
-        console.log(response);
+        if (isLocalhost) {
+            console.log(response);
+        }
 
         if (response.status === 200) {
             if (!response.data
-                || !response.data.data
+                || !response.data.successful
                 || response.data.code !== 0) {
 
-                onError("页面加载失败-1")
+                onError("页面加载失败-1, " + response.data.msg || '')
 
             } else {
                 //加载页面
@@ -303,18 +308,22 @@ export function saveSchema(schema: any
     , onSuccess: (data: any) => void = data => alert("保存成功")
     , onError: (info: string) => void = (info => alert(info, "发生错误"))) {
 
-    console.log(schema);
+    if (isLocalhost) {
+        console.log(schema);
+    }
 
     axios.put(getSaveUrl(), encrypt(JSON.stringify(schema), null), {headers: getHeaders()})
         .then(response => {
 
-            console.log(response);
+            if (isLocalhost) {
+                console.log(response);
+            }
 
             if (response.status === 200) {
                 if (!response.data
-                    || !response.data.code
+                    || !response.data.successful
                     || response.data.code !== 0) {
-                    onError("页面保存失败," + (response.data.msg || response.data))
+                    onError("页面保存失败-1," + (response.data.msg || response.data))
                 } else {
                     //保存页面
                     //store.updateSchema(response.data.data.content)
@@ -323,6 +332,10 @@ export function saveSchema(schema: any
                         && typeof response.data.data === "object") {
                         //更新
                         config = {...config, ...response.data.data};
+
+                        if (isLocalhost) {
+                            console.debug("new config:", config)
+                        }
                     }
 
                     onSuccess(response)
@@ -330,11 +343,15 @@ export function saveSchema(schema: any
             } else if (response.status === 401) {
                 onError("认证失败！")
             } else {
-                onError("页面保存失败！")
+                onError("页面保存失败-2")
             }
 
         }).catch(reason => {
-        console.log(reason);
-        onError("页面保存失败！")
+
+        if (isLocalhost) {
+            console.debug(reason);
+        }
+
+        onError("页面保存失败-3")
     })
 }
