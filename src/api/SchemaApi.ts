@@ -227,15 +227,17 @@ export function loadSchema(onSchema: (schema: any) => void
     , store?: IMainStore
     , onErrorFun: (info: string) => void = (info => alert(info, "错误"))) {
 
-    const updateSchema = (data: any) => {
+    const updateSchema = (pageData: any) => {
 
-        let schame = data.content;
+        pageData = pageData || {}
+
+        let schame = pageData.content || {};
 
         if ((typeof schame) === "string") {
             schame = JSON.parse(schame)
         }
 
-        const title = data.title || data.name || data.remark;
+        const title = pageData.title || pageData.name || pageData.remark || "未命名页面";
 
         if (store && title) {
             store.setTitle(title)
@@ -258,7 +260,6 @@ export function loadSchema(onSchema: (schema: any) => void
             if (isLocalhost) {
                 console.info('加载示例', exampleJson)
             }
-
 
             updateSchema(exampleJson.data)
 
