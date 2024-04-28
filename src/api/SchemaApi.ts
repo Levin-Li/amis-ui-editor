@@ -231,22 +231,21 @@ export function loadSchema(onSchema: (schema: any) => void
 
         pageData = pageData || {}
 
-        let schame = pageData.content || {};
-
-        if ((typeof schame) === "string") {
-            schame = JSON.parse(schame)
+        if ((typeof pageData) === "string") {
+            pageData = JSON.parse(pageData)
         }
 
-        const title = pageData.title || pageData.name || pageData.remark || "未命名页面";
+        const title = pageData.title || pageData.name || pageData.remark || null;
 
         if (store && title) {
             store.setTitle(title)
         }
+
         if (document && title) {
             document.title = title
         }
 
-        onSchema(schame)
+        onSchema(pageData)
     }
 
     const loadUrl = getLoadUrl();
